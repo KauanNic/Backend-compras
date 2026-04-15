@@ -2,23 +2,27 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
+
 const app = express();
 
-app.use(cors());
-app.use(express.json());
-app.use(cors());
+// Middleware - Apenas uma vez cada!
+app.use(cors()); 
 app.use(express.json());
 
-
+// Rota de teste
 app.get('/', (req, res) => res.json({ message: 'API do app Compras funcionando.' }));
 
+// Suas rotas
 app.use('/api/entries', require('./routes/diaryRoutes'));
 
-mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/pet_diary')
-  .then(() =>
-    app.listen(process.env.PORT || 3000, () =>
-      console.log(`Servidor rodando`)
-    )
-  );
+// Conexão com o Banco
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/pet_diary';
+
+mongoose.connect(MONGO_URI)
+  .then(() => {
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
+  })
+  .catch(err => {
+    console.error('Erro ao conectar ao MongoDB:', err.message);
+  });
