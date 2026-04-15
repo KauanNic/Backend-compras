@@ -5,24 +5,24 @@ require('dotenv').config();
 
 const app = express();
 
-// Middleware - Apenas uma vez cada!
-app.use(cors()); 
+// Libera o CORS totalmente
+app.use(cors());
 app.use(express.json());
 
-// Rota de teste
-app.get('/', (req, res) => res.json({ message: 'API do app Compras funcionando.' }));
+// Rota de teste para você abrir no navegador e ver se o erro some
+app.get('/', (req, res) => res.json({ message: 'API ONLINE!' }));
 
-// Suas rotas
 app.use('/api/entries', require('./routes/diaryRoutes'));
 
-// Conexão com o Banco
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/pet_diary';
+const PORT = process.env.PORT || 3000;
+const MONGO_URI = process.env.MONGO_URI;
 
-mongoose.connect(MONGO_URI)
-  .then(() => {
-    const PORT = process.env.PORT || 3000;
-    app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
-  })
-  .catch(err => {
-    console.error('Erro ao conectar ao MongoDB:', err.message);
-  });
+// Ligar o servidor PRIMEIRO
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
+  
+  // Depois tenta conectar ao banco
+  mongoose.connect(MONGO_URI)
+    .then(() => console.log('Conectado ao MongoDB Atlas'))
+    .catch(err => console.error('ERRO DE CONEXÃO NO MONGODB:', err.message));
+});
