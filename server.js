@@ -14,15 +14,22 @@ app.get('/', (req, res) => res.json({ message: 'API ONLINE!' }));
 
 app.use('/api/entries', require('./routes/diaryRoutes'));
 
-const PORT = process.env.PORT || 3000;
+// ... (parte de cima do código com express e cors)
+
 const MONGO_URI = process.env.MONGO_URI;
 
-// Ligar o servidor PRIMEIRO
+// Ligar o servidor INDEPENDENTE do banco de dados
+const PORT = process.env.PORT || 10000; // Render usa 10000 por padrão
+
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
   
-  // Depois tenta conectar ao banco
-  mongoose.connect(MONGO_URI)
-    .then(() => console.log('Conectado ao MongoDB Atlas'))
-    .catch(err => console.error('ERRO DE CONEXÃO NO MONGODB:', err.message));
+  // Tenta conectar, mas não trava o servidor se falhar
+  if (!MONGO_URI) {
+    console.error("ERRO: Variável MONGO_URI não encontrada no Environment!");
+  } else {
+    mongoose.connect(MONGO_URI)
+      .then(() => console.log('Conectado ao MongoDB com sucesso!'))
+      .catch(err => console.error('ERRO DE CONEXÃO NO MONGODB:', err.message));
+  }
 });
